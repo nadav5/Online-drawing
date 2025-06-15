@@ -1,0 +1,19 @@
+﻿<Window x:Class="FirstApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sketch App" Height="500" Width="700">
+    <Grid>
+        <Canvas x:Name="MyCanvas" Background="White" Margin="10,60,10,10"/>
+
+        <StackPanel Orientation="Horizontal" Margin="10" VerticalAlignment="Top">
+            <Button Content="Line" Width="70" Margin="5" Click="AddLine_Click"/>
+            <Button Content="Rectangle" Width="70" Margin="5" Click="AddRectangle_Click"/>
+            <Button Content="Circle" Width="70" Margin="5" Click="AddCircle_Click"/>
+            <Button Content="Clear" Width="70" Margin="5" Click="Clear_Click"/>
+            <Button Content="Upload" Width="70" Margin="5" Click="Upload_Click"/>
+            <Button Content="Load" Width="70" Margin="5" Click="Load_Click"/>
+
+
+        </StackPanel>
+    </Grid>
+</Window>

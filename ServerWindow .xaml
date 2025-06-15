@@ -1,0 +1,18 @@
+﻿<Window x:Class="FirstApp.ServerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sketch Server Monitor" Height="300" Width="300">
+    <Grid Margin="10">
+        <StackPanel Margin="10">
+            <Label Content="Saved Sketches:" FontWeight="Bold" />
+
+            <ScrollViewer Height="150">
+                <StackPanel x:Name="SketchListPanel" />
+            </ScrollViewer>
+
+            <TextBlock x:Name="StatusText" Text="Server running..." Foreground="Green" Margin="0,5,0,5"/>
+
+            <Button x:Name="SuspendButton" Content="Suspend" Click="SuspendButton_Click" Margin="0,10,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>
