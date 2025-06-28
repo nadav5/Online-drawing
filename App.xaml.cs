@@ -16,6 +16,9 @@ namespace FirstApp
             ServerWindow serverWindow = new ServerWindow();
             serverWindow.Show();
 
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+
             
         }
     }

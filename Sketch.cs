@@ -6,7 +6,7 @@ namespace FirstApp
 {
     public class Sketch
     {
-        private List<Shape> shapes = new List<Shape>();
+        private readonly List<Shape> shapes = new List<Shape>();
 
         public void AddShape(Shape shape)
         {
@@ -15,7 +15,7 @@ namespace FirstApp
 
         public void DrawAll(Canvas canvas)
         {
-            canvas.Children.Clear(); 
+            canvas.Children.Clear();
             foreach (var shape in shapes)
             {
                 UIElement visual = shape.CreateVisual();
@@ -28,9 +28,26 @@ namespace FirstApp
             shapes.Clear();
         }
 
-        public List<Shape> GetShapes()
+        public IReadOnlyList<Shape> GetShapes()
         {
-            return shapes;
+            return shapes.AsReadOnly();
         }
+
+        public void AddShapes(IEnumerable<Shape> newShapes)
+        {
+            shapes.AddRange(newShapes);
+        }
+
+        public void DrawLast(Canvas canvas)
+        {
+            if (shapes.Count > 0)
+            {
+                var last = shapes[^1];
+                UIElement visual = last.CreateVisual();
+                canvas.Children.Add(visual);
+            }
+        }
+
+
     }
 }

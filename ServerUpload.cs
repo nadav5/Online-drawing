@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SketchServer
+namespace FirstApp
 {
     public class ServerUpload
     {
@@ -22,7 +22,7 @@ namespace SketchServer
             {
                 TcpClient client = await listener.AcceptTcpClientAsync();
 
-                if (FirstApp.ServerWindow.TokenSource.IsCancellationRequested)
+                if (ServerWindow.TokenSource.IsCancellationRequested)
                 {
                     client.Close(); 
                     continue;
@@ -36,9 +36,19 @@ namespace SketchServer
         {
             using (NetworkStream stream = client.GetStream())
             {
-                byte[] buffer = new byte[8192];
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                string request = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                string request;
+                using (var ms = new MemoryStream())
+                {
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        ms.Write(buffer, 0, bytesRead);
+                    }
+
+                    request = Encoding.UTF8.GetString(ms.ToArray());
+                }
+
 
                 if (request.StartsWith("SAVE_AS:"))
                 {
@@ -53,6 +63,8 @@ namespace SketchServer
                     Directory.CreateDirectory(folder);
                     string filePath = Path.Combine(folder, fileName + ".json");
                     File.WriteAllText(filePath, json);
+
+
 
                     SketchUploaded?.Invoke(fileName);
 

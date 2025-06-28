@@ -6,11 +6,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SketchServer
+namespace FirstApp
 {
     public class ServerDownload
     {
         private const int Port = 5001;
+        
+
 
         public async Task StartAsync()
         {
@@ -21,7 +23,7 @@ namespace SketchServer
             {
                 TcpClient client = await listener.AcceptTcpClientAsync();
 
-                if (FirstApp.ServerWindow.TokenSource.IsCancellationRequested)
+                if (ServerWindow.TokenSource.IsCancellationRequested)
                 {
                     client.Close(); 
                     continue;
@@ -55,19 +57,45 @@ namespace SketchServer
                 {
                     string fileName = request.Substring("GET_FILE:".Length).Trim();
                     string filePath = Path.Combine(folder, fileName);
-                    if (File.Exists(filePath))
+
+
+
+
+                    if (!FileLockManager.Instance.TryLock(fileName))
                     {
-                        string content = File.ReadAllText(filePath);
-                        await writer.WriteLineAsync(content);
+                        await writer.WriteLineAsync("ERROR: File is currently in use");
+                        return;
                     }
-                    else
+
+                    try
                     {
-                        await writer.WriteLineAsync("ERROR: File not found");
+                        if (File.Exists(filePath))
+                        {
+                            string content = File.ReadAllText(filePath);
+                            await writer.WriteLineAsync(content);
+                        }
+                        else
+                        {
+                            await writer.WriteLineAsync("ERROR: File not found");
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        await writer.WriteLineAsync("ERROR: " + ex.Message);
+                    }
+                }
+                else if (request.StartsWith("RELEASE_FILE:"))
+                {
+                    string fileName = request.Substring("RELEASE_FILE:".Length).Trim();
+
+                    FileLockManager.Instance.Release(fileName);
+
+                    await writer.WriteLineAsync("OK: File released");
                 }
             }
 
             client.Close();
         }
+
     }
 }

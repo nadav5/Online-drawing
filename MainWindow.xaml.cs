@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using SketchServer;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
@@ -14,41 +13,61 @@ namespace FirstApp
     {
         private Sketch sketch = new Sketch();
 
+        private string currentlyLoadedFile = null;
+
+
         public MainWindow()
         {
             InitializeComponent();
 
 
-            Task.Run(() => new ServerUpload().StartAsync());
-            Task.Run(() => new ServerDownload().StartAsync());
+            Task.Run(() => new FirstApp.ServerUpload().StartAsync());
+            Task.Run(() => new FirstApp.ServerDownload().StartAsync());
         }
 
         private void AddLine_Click(object sender, RoutedEventArgs e)
         {
             var line = new Line(10, 10, 150, 150);
             sketch.AddShape(line);
-            sketch.DrawAll(MyCanvas);
+            //sketch.DrawAll(MyCanvas);
+            sketch.DrawLast(MyCanvas);
         }
 
         private void AddRectangle_Click(object sender, RoutedEventArgs e)
         {
             var rect = new Rectangle(100, 60) { X = 50, Y = 50 };
             sketch.AddShape(rect);
-            sketch.DrawAll(MyCanvas);
+            //sketch.DrawAll(MyCanvas);
+            sketch.DrawLast(MyCanvas);
         }
 
         private void AddCircle_Click(object sender, RoutedEventArgs e)
         {
             var circle = new Circle(40) { X = 200, Y = 100 };
             sketch.AddShape(circle);
-            sketch.DrawAll(MyCanvas);
+            //sketch.DrawAll(MyCanvas);
+            sketch.DrawLast(MyCanvas);
         }
 
-        private void Clear_Click(object sender, RoutedEventArgs e)
+        private async void Clear_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                if (!string.IsNullOrEmpty(currentlyLoadedFile))
+                {
+                    await ReleaseFileAsync(currentlyLoadedFile);
+                    currentlyLoadedFile = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error releasing file:\n" + ex.Message);
+            }
+
             sketch.Clear();
             MyCanvas.Children.Clear();
         }
+
 
         private async void Upload_Click(object sender, RoutedEventArgs e)
         {
@@ -58,12 +77,29 @@ namespace FirstApp
                 return;
             }
 
+            if (!string.IsNullOrEmpty(currentlyLoadedFile))
+            {
+                await ReleaseFileAsync(currentlyLoadedFile);
+                currentlyLoadedFile = null;
+            }
+
+
             string fileName = InputDialog.Show("Enter file name:");
             if (string.IsNullOrWhiteSpace(fileName))
             {
                 MessageBox.Show("No file name provided. Upload canceled.");
                 return;
             }
+
+            string folder = Path.Combine(Directory.GetCurrentDirectory(), "Sketches");
+            string filePath = Path.Combine(folder, fileName + ".json");
+
+            if (File.Exists(filePath))
+            {
+                MessageBox.Show("Try another name, that name is taken");
+                return;
+            }
+
 
             var shapes = sketch.GetShapes();
             string json = JsonConvert.SerializeObject(shapes, Formatting.Indented);
@@ -100,19 +136,25 @@ namespace FirstApp
                         string jsonList = await reader.ReadToEndAsync();
                         fileList = JsonConvert.DeserializeObject<List<string>>(jsonList);
                     }
-
-
                 }
 
                 string fileName = ShowSelectionDialog(fileList);
+
+                if (!string.IsNullOrEmpty(currentlyLoadedFile))
+                {
+                    await ReleaseFileAsync(currentlyLoadedFile);
+                    currentlyLoadedFile = null;
+                }
+
                 if (string.IsNullOrWhiteSpace(fileName))
                     return;
 
+                currentlyLoadedFile = fileName;
 
                 string fileContent;
                 using (TcpClient client = new TcpClient())
                 {
-                    await client.ConnectAsync("127.0.0.1", 5001); 
+                    await client.ConnectAsync("127.0.0.1", 5001);
                     using (NetworkStream stream = client.GetStream())
                     using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true })
                     using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
@@ -123,17 +165,21 @@ namespace FirstApp
                 }
 
 
+
+
+
+
                 var shapes = JsonConvert.DeserializeObject<List<Shape>>(fileContent, new ShapeConverter());
                 sketch.Clear();
-                sketch.GetShapes().AddRange(shapes);
+                sketch.AddShapes(shapes);
                 sketch.DrawAll(MyCanvas);
             }
             catch (System.Exception ex)
             {
-
-                MessageBox.Show("Failed  to load sketch:\n" + ex.Message);
+                MessageBox.Show("Failed to load sketch another user is watching it now.\n");
             }
         }
+
 
         public static string ShowSelectionDialog(List<string> options)
         {
@@ -174,5 +220,34 @@ namespace FirstApp
             window.ShowDialog();
             return selected;
         }
+
+        private async Task ReleaseFileAsync(string fileName)
+        {
+            try
+            {
+                using (TcpClient client = new TcpClient())
+                {
+                    await client.ConnectAsync("127.0.0.1", 5001);
+                    using (NetworkStream stream = client.GetStream())
+                    using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true })
+                    using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
+                    {
+                        await writer.WriteLineAsync("RELEASE_FILE:" + fileName);
+                        string response = await reader.ReadLineAsync();
+
+                        if (!response.StartsWith("OK"))
+                        {
+                            MessageBox.Show("Release failed:\n" + response);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Release error:\n" + ex.Message);
+            }
+        }
+
+
     }
 }

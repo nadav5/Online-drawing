@@ -3,7 +3,7 @@
   <Class Name="FirstApp.Shape" Collapsed="true">
     <Position X="6.5" Y="2.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAACAAAAAAAAAAAAAAAAgQAAAAAAAAAAAAAAAAAYAA=</HashCode>
+      <HashCode>AAAACAAAAAAAAAAAACAAAgQAAAAAAAAAAAAAAAAAYAA=</HashCode>
       <FileName>Shape.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -36,7 +36,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="FirstApp.ShapeFactory" Collapsed="true">
-    <Position X="10" Y="2.25" Width="1.5" />
+    <Position X="10.25" Y="2.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ShapeFactory.cs</FileName>
@@ -67,7 +67,7 @@
   <Class Name="FirstApp.MainWindow" Collapsed="true">
     <Position X="5.5" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAIAAAAAAAAAAAACABAAAAAAAABAAAAAAAAAEAgAAA=</HashCode>
+      <HashCode>AAAIAAAAAAAAAAAACABAAAAgAAABAAQAAAAAAEAgAAA=</HashCode>
       <FileName>MainWindow.xaml.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -84,6 +84,13 @@
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAQAAQAAAAAA=</HashCode>
       <FileName>ServerDownload.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileLockManager" Collapsed="true">
+    <Position X="12.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAECAAAAAAAAAAAAAAAAAAAAAAAAAAAQEBAABIAAAA=</HashCode>
+      <FileName>FileLockManager.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />

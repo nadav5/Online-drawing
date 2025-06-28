@@ -1,5 +1,4 @@
-﻿using SketchServer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -21,7 +20,7 @@ namespace FirstApp
         {
             InitializeComponent();
 
-            var uploadServer = new ServerUpload();
+            var uploadServer = new FirstApp.ServerUpload();
             uploadServer.SketchUploaded += name =>
             {
                 Dispatcher.Invoke(() =>
